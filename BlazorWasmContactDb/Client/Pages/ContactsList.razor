@@ -1,0 +1,124 @@
+﻿@using BlazorWasmContactDb.Shared;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@page "/contacts"
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@attribute [Authorize(Roles = "Admin, Norrmal")]
+
+<h3>Contacts List</h3>
+
+<div class="row">
+    <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Search by First Name" @bind="searchFirstName" @onkeypress="SearchByFirstNameOnKeyPress" />
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Search by Last Name" @bind="searchLastName" @onkeypress="SearchByLastNameOnKeyPress" />
+    </div>
+    <div class="col-md-4">
+        <input type="text" class="form-control" placeholder="Search by Email" @bind="searchEmail" @onkeypress="SearchByEmailOnKeyPress" />
+    </div>
+</div>
+
+@if (contacts == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Date of Birth</th>
+                <th>Is Married</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var contact in filteredContacts)
+            {
+                <tr>
+                    <td>@contact.FirstName</td>
+                    <td>@contact.LastName</td>
+                    <td>@contact.Email</td>
+                    <td>@contact.Role</td>
+                    <td>@contact.Title</td>
+                    <td>@contact.Description</td>
+                    <td>@contact.DateofBirth.Date</td>
+                    <td>@contact.IsMarried</td>
+                    <AuthorizeView Roles="Editor">
+                    <td>
+                        <a href="edit-contact/@contact.Id">Edit</a>
+                    </td>
+                    </AuthorizeView>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<ContactDisplay> contacts;
+    private List<ContactDisplay> filteredContacts;
+
+    private string searchFirstName = string.Empty;
+    private string searchLastName = string.Empty;
+    private string searchEmail = string.Empty;
+
+    private async Task SearchByFirstNameOnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SearchByFirstName();
+        }
+    }
+
+    private async Task SearchByLastNameOnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SearchByLastName();
+        }
+    }
+
+    private async Task SearchByEmailOnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            SearchByEmail();
+        }
+    }
+
+    private void SearchByFirstName()
+    {
+        filteredContacts = contacts.Where(c => c.FirstName.Contains(searchFirstName, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void SearchByLastName()
+    {
+        filteredContacts = contacts.Where(c => c.LastName.Contains(searchLastName, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    private void SearchByEmail()
+    {
+        filteredContacts = contacts.Where(c => c.Email.Contains(searchEmail, StringComparison.OrdinalIgnoreCase)).ToList();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch data from the API endpoint
+        try
+        {
+            contacts = await Http.GetFromJsonAsync<List<ContactDisplay>>("api/contact/all-contacts");
+            filteredContacts = contacts; // Initialize the filtered list
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}

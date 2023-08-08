@@ -1,0 +1,115 @@
+﻿@using BlazorWasmContactDb.Shared;
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@page "/edit-contact/{id}"
+@inject NavigationManager Navigation
+@inject HttpClient Http
+@attribute [Authorize(Roles = "Admin")]
+<h3>Edit Contact</h3>
+
+@if (contact == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <EditForm Model="contact" OnValidSubmit="UpdateContact">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label>First Name:</label>
+            <InputText class="form-control" @bind-Value="contact.FirstName" />
+        </div>
+
+        <div class="form-group">
+            <label>Last Name:</label>
+            <InputText class="form-control" @bind-Value="contact.LastName" />
+        </div>
+
+        <div class="form-group">
+            <label>Email:</label>
+            <InputText class="form-control" @bind-Value="contact.Email" />
+        </div>
+
+        <div class="form-group">
+            <label>Username:</label>
+            <InputText class="form-control" @bind-Value="contact.Username" />
+            <ValidationMessage For="@(() => contact.Username)" />
+        </div>
+
+        <div class="form-group">
+            <label>Password:</label>
+            <InputText class="form-control" @bind-Value="contact.Password" />
+            <ValidationMessage For="@(() => contact.Password)" />
+        </div>
+
+        <div class="form-group">
+            <label>Role:</label>
+            <InputSelect class="form-control" @bind-Value="contact.Role">
+                <option value="Admin">Admin</option>
+                <option value="Normal">Normal</option>
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label>Title:</label>
+            <InputSelect class="form-select" @bind-Value=contact.Title>
+                <option value="Mr">Mr.</option>
+                <option value="Mrs">Mrs.</option>
+                <option value="Miss">Miss</option>
+                <option value="Ms">Ms.</option>
+            </InputSelect>
+        </div>
+
+        <div class="form-group">
+            <label>Description:</label>
+            <InputText class="form-control" @bind-Value="contact.Description" />
+        </div>
+
+
+        <div>
+            <label>Is Married:</label>
+            <InputSelect class="form-select" @bind-Value=contact.IsMarried>
+                <option value="false">No</option>
+                <option value="true">Yes</option>
+            </InputSelect>
+
+        </div>
+
+        <div class="form-group">
+            <label>Date of Birth:</label>
+            <InputDate class="form-control" @bind-Value="contact.DateofBirth" />
+        </div>
+        <br />
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Save Contact</button>
+        </div>
+    </EditForm>
+
+}
+
+@code {
+    private ContactInput contact;
+    private string errorMessage = "";
+
+    [Parameter]
+    public Guid id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadContactData();
+    }
+
+    private async Task LoadContactData()
+    {
+        var url = $"api/contact/{id}";
+       // Contact = await Http.GetFromJsonAsync<ContactInput>("/api/contact/get-contact?id=" + id);
+    }
+
+    private async Task UpdateContact()
+    {
+        var url = $"api/contact/{id}";
+        var response = await Http.PutAsJsonAsync(url, contact);
+
+    }
+}
