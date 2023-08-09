@@ -9,7 +9,6 @@
 @attribute [Authorize(Roles = "Admin")]
 <h3>Add Contact</h3>
 
-
 <EditForm Model="contact" OnValidSubmit="HandleValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -43,7 +42,7 @@
 
     <div class="form-group">
         <label>Role:</label>
-        <InputSelect class="form-control" @bind-Value="contact.Role" >
+        <InputSelect class="form-control" @bind-Value="contact.Role">
             <option value="Admin">Admin</option>
             <option value="Normal">Normal</option>
         </InputSelect>
@@ -55,7 +54,7 @@
             <option value="Mr">Mr.</option>
             <option value="Mrs">Mrs.</option>
             <option value="Miss">Miss</option>
-            <option value="Ms" >Ms.</option>
+            <option value="Ms">Ms.</option>
         </InputSelect>
     </div>
 
@@ -90,7 +89,6 @@
     private string errorMessage = "";
     private async Task HandleValidSubmit()
     {
-
         contact.DateofBirth = contact.DateofBirth.Date;
         try
         {

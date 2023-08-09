@@ -3,7 +3,7 @@
 @page "/contacts"
 @inject HttpClient Http
 @inject NavigationManager Navigation
-@attribute [Authorize(Roles = "Admin, Norrmal")]
+@attribute [Authorize(Roles = "Admin, Normal")]
 
 <h3>Contacts List</h3>
 
@@ -50,10 +50,10 @@ else
                     <td>@contact.Description</td>
                     <td>@contact.DateofBirth.Date</td>
                     <td>@contact.IsMarried</td>
-                    <AuthorizeView Roles="Editor">
-                    <td>
-                        <a href="edit-contact/@contact.Id">Edit</a>
-                    </td>
+                    <AuthorizeView Roles="Admin">
+                        <td>
+                            <a href="edit-contact/@contact.Id">Edit</a>
+                        </td>
                     </AuthorizeView>
                 </tr>
             }
@@ -110,11 +110,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // Fetch data from the API endpoint
         try
         {
             contacts = await Http.GetFromJsonAsync<List<ContactDisplay>>("api/contact/all-contacts");
-            filteredContacts = contacts; // Initialize the filtered list
+            filteredContacts = contacts; 
         }
         catch (AccessTokenNotAvailableException exception)
         {

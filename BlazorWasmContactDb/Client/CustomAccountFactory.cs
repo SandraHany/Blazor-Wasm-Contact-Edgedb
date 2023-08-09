@@ -7,14 +7,14 @@ namespace BlazorWasmContactDb.Client;
 
 public class CustomAccountFactory : AccountClaimsPrincipalFactory<RemoteUserAccount>
 {
-public CustomAccountFactory(IAccessTokenProviderAccessor accessor)
-    : base(accessor)
-{ }
+    public CustomAccountFactory(IAccessTokenProviderAccessor accessor)
+        : base(accessor)
+    { }
 
-public async override ValueTask<ClaimsPrincipal> CreateUserAsync(
-  RemoteUserAccount account,
-  RemoteAuthenticationUserOptions options)
-{
+    public async override ValueTask<ClaimsPrincipal> CreateUserAsync(
+      RemoteUserAccount account,
+      RemoteAuthenticationUserOptions options)
+    {
         var principal = await base.CreateUserAsync(account, options);
 
         // Log or inspect the claims to check for the role claim
@@ -24,26 +24,26 @@ public async override ValueTask<ClaimsPrincipal> CreateUserAsync(
         }
         // Step 1: create the user account
         var userAccount = await base.CreateUserAsync(account, options);
-    var userIdentity = (ClaimsIdentity)userAccount.Identity;
+        var userIdentity = (ClaimsIdentity)userAccount.Identity;
 
-    if (userIdentity.IsAuthenticated)
-    {
-        // Step 2: get the associated roles
-        var roles = account.AdditionalProperties[userIdentity.RoleClaimType] as JsonElement?;
-
-        if (roles?.ValueKind == JsonValueKind.Array)
+        if (userIdentity.IsAuthenticated)
         {
-            // Step 3: remove the existing role claim with the serialized array
-            userIdentity.TryRemoveClaim(userIdentity.Claims.FirstOrDefault(c => c.Type == userIdentity.RoleClaimType));
+            // Step 2: get the associated roles
+            var roles = account.AdditionalProperties[userIdentity.RoleClaimType] as JsonElement?;
 
-            // Step 4: add each role separately
-            foreach (JsonElement element in roles.Value.EnumerateArray())
+            if (roles?.ValueKind == JsonValueKind.Array)
             {
-                userIdentity.AddClaim(new Claim(userIdentity.RoleClaimType, element.GetString()));
+                // Step 3: remove the existing role claim with the serialized array
+                userIdentity.TryRemoveClaim(userIdentity.Claims.FirstOrDefault(c => c.Type == userIdentity.RoleClaimType));
+
+                // Step 4: add each role separately
+                foreach (JsonElement element in roles.Value.EnumerateArray())
+                {
+                    userIdentity.AddClaim(new Claim(userIdentity.RoleClaimType, element.GetString()));
+                }
             }
         }
-    }
 
-    return userAccount;
-}
+        return userAccount;
+    }
 }

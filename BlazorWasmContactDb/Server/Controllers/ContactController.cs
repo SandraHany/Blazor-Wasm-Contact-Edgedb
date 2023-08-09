@@ -8,15 +8,12 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Identity;
 
 namespace BlazorWasmContactDb.Server.Controllers;
-
-
 [ApiController]
 [Route("api/[controller]")]
-//[Authorize]
+[Authorize]
 public class ContactController : ControllerBase
 {
     EdgeDBClient client = new EdgeDBClient();
-    // Inject any dependencies required for database access here
 
     [HttpPost("add")]
     public async Task<IActionResult> AddContact()
@@ -61,80 +58,80 @@ public class ContactController : ControllerBase
         return Ok(contact);
     }
 
-    //// PUT: api/contact/{id}
-    //[HttpPut("{id}")]
-    //public async Task<IActionResult> UpdateContact()
-    //{
-    //    var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
-    //    var updatedContact = Newtonsoft.Json.JsonConvert.DeserializeObject<ContactInput>(requestBody);
-    //    var passwordHasher = new PasswordHasher<string>();
-    //    updatedContact.Password = passwordHasher.HashPassword(null, updatedContact.Password);
-    //    var query = $@"
-    //        UPDATE Contact 
-    //            FILTER .id = <uuid>$id
-    //            SET {{
-    //                first_name := <str>$first_name,
-    //                last_name := <str>$last_name,
-    //                email := <str>$email,
-    //                username := <str>$username,
-    //                password := <str>$password,
-    //                role := <str>$role,
-    //                title := <str>$title,
-    //                description := <str>$description,
-    //                date_of_birth := cal::to_local_date(<str>$date_of_birth, 'MM dd yyyy'),
-    //                is_married := <bool>$is_married
-    //            }}
+    // PUT: api/contact/{id}
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateContact()
+    {
+        var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
+        var updatedContact = Newtonsoft.Json.JsonConvert.DeserializeObject<ContactInput>(requestBody);
+        var passwordHasher = new PasswordHasher<string>();
+        updatedContact.Password = passwordHasher.HashPassword(null, updatedContact.Password);
+        var query = $@"
+            UPDATE Contact 
+                FILTER .id = <uuid>$id
+                SET {{
+                    first_name := <str>$first_name,
+                    last_name := <str>$last_name,
+                    email := <str>$email,
+                    username := <str>$username,
+                    password := <str>$password,
+                    role := <str>$role,
+                    title := <str>$title,
+                    description := <str>$description,
+                    date_of_birth := cal::to_local_date(<str>$date_of_birth, 'MM dd yyyy'),
+                    is_married := <bool>$is_married
+                }}
 
-    //        ;";
-    //    var parameters = new Dictionary<string, object>
-    //    {
-    //        { "id", updatedContact.Id },
-    //        { "first_name", updatedContact.FirstName },
-    //        { "last_name", updatedContact.LastName },
-    //        { "email", updatedContact.Email },
-    //        { "username", updatedContact.Username },
-    //        { "role", updatedContact.Role },
-    //        { "title", updatedContact.Title },
-    //        { "description", updatedContact.Description },
-    //        { "date_of_birth", updatedContact.DateofBirth },
-    //        { "is_married", updatedContact.IsMarried }
-    //    };
-    //    try
-    //    {
-    //        await client.ExecuteAsync(query, parameters);
-    //        return Ok(updatedContact);
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        // Log the error and return an error response.
-    //        // For debugging purposes, you can also return the exception message as part of the response.
-    //        return StatusCode(500, "An error occurred while updating the contact: " + ex.Message);
-    //    }
-    //}
-    //[HttpGet("get-contact")]
-    //public async Task<IActionResult> GetContact([FromQuery] Guid id)
-    //{
-    //    var query = $@"SELECT Contact {{
-    //        Id :=.id,
-    //        FirstName := .first_name,
-    //        LastName := .last_name,
-    //        Email := .email,
-    //        Username := .username,
-    //        Role := .role,
-    //        Title := .title,
-    //        Description := .description,
-    //        DateofBirth :=  std::to_str(.date_of_birth, 'MM dd yyyy'), 
-    //        IsMarried := .is_married
-    //        }} FILTER .id = <uuid>$id;";
-    //    var parameters = new Dictionary<string, object>
-    //    {
-    //        { "id", id }
-    //    };
-    //    var result = await client.QueryAsync<ContactInput>(query, parameters);
-    //    if (result == null)
-    //        return NotFound();
-    //    return Ok(result);
-    //}
+            ;";
+        var parameters = new Dictionary<string, object>
+        {
+            { "id", updatedContact.Id },
+            { "first_name", updatedContact.FirstName },
+            { "last_name", updatedContact.LastName },
+            { "email", updatedContact.Email },
+            { "username", updatedContact.Username },
+            { "role", updatedContact.Role },
+            { "title", updatedContact.Title },
+            { "description", updatedContact.Description },
+            { "date_of_birth", updatedContact.DateofBirth },
+            { "is_married", updatedContact.IsMarried }
+        };
+        try
+        {
+            await client.ExecuteAsync(query, parameters);
+            return Ok(updatedContact);
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "An error occurred while updating the contact: " + ex.Message);
+        }
+    }
+
+    [HttpGet("get-contact")]
+    public async Task<IActionResult> GetContact([FromQuery] Guid id)
+    {
+        var query = $@"SELECT Contact {{
+            Id :=.id,
+            FirstName := .first_name,
+            LastName := .last_name,
+            Email := .email,
+            Username := .username,
+            Role := .role,
+            Title := .title,
+            Description := .description,
+            DateofBirth :=  std::to_str(.date_of_birth, 'MM dd yyyy'), 
+            IsMarried := .is_married
+            }} FILTER .id = <uuid>$id;";
+        var parameters = new Dictionary<string, object>
+        {
+            { "id", id }
+        };
+        var result = await client.QueryAsync<ContactInput>(query, parameters);
+        if (result == null)
+            return NotFound();
+        return Ok(result);
+    }
+
     [HttpGet("all-contacts")]
     public async Task<IActionResult> GetAllContacts()
     {
@@ -153,10 +150,8 @@ public class ContactController : ControllerBase
             ";
 
         var result = await client.QueryAsync<ContactDisplay>(query);
-
         var contacts = result.ToList();
         return Ok(contacts);
     }
-   
-}
 
+}

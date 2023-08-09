@@ -81,9 +81,11 @@ else
             <InputDate class="form-control" @bind-Value="contact.DateofBirth" />
         </div>
         <br />
+
         <div class="form-group">
             <button type="submit" class="btn btn-primary">Save Contact</button>
         </div>
+
     </EditForm>
 
 }
@@ -91,10 +93,8 @@ else
 @code {
     private ContactInput contact;
     private string errorMessage = "";
-
     [Parameter]
     public Guid id { get; set; }
-
     protected override async Task OnInitializedAsync()
     {
         await LoadContactData();
@@ -103,7 +103,7 @@ else
     private async Task LoadContactData()
     {
         var url = $"api/contact/{id}";
-       // Contact = await Http.GetFromJsonAsync<ContactInput>("/api/contact/get-contact?id=" + id);
+        contact = await Http.GetFromJsonAsync<ContactInput>("/api/contact/get-contact?id=" + id);
     }
 
     private async Task UpdateContact()

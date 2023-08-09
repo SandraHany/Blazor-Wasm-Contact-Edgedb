@@ -59,47 +59,6 @@ namespace BlazorWasmContactDb
             app.MapControllers();
             app.MapFallbackToFile("index.html");
 
-            //app.MapPost("/addcontact", async (HttpContext context, EdgeDBClient client, ContactInput contact) =>
-            //{
-            //    if (string.IsNullOrEmpty(contact.FirstName) || string.IsNullOrEmpty(contact.LastName) || string.IsNullOrEmpty(contact.Email) )
-            //    {
-            //        context.Response.StatusCode = 400;
-            //        await context.Response.WriteAsync("All fields are required.");
-            //        return;
-            //    }
-            //    var passwordHasher = new PasswordHasher<string>();
-            //    contact.Password = passwordHasher.HashPassword(null, contact.Password);
-            //    var query = @"
-            //    INSERT Contact {
-            //        first_name := <str>$first_name,
-            //        last_name := <str>$last_name,
-            //        email := <str>$email,
-            //        username := <str>$username,
-            //        password := <str>$password,
-            //        role := <str>$role,
-            //        title := <str>$title,
-            //        description := <str>$description,
-            //        date_of_birth := <str>$date_of_birth,
-            //        is_married := <str>$is_married
-            //    }
-            //";
-
-            //    var parameters = new Dictionary<string, object>
-            // {
-            //    { "first_name", contact.FirstName },
-            //    { "last_name", contact.LastName },
-            //    { "email", contact.Email },
-            //    { "username", contact.Username },
-            //    { "password", contact.Password },
-            //    { "role", contact.Role },
-            //    { "title", contact.Title },
-            //    { "description", contact.Description },
-            //    { "date_of_birth",contact.DateofBirth},
-            //    { "is_married", contact.IsMarried}
-            // };
-            //   await client.ExecuteAsync(query, parameters);
-            //});
-
             app.Run();
         }
     }

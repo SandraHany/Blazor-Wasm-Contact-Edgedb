@@ -12,7 +12,6 @@ namespace BlazorWasmContactDb.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
-            //builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
             builder.Services.AddOidcAuthentication(options =>
             {
                 builder.Configuration.Bind("Auth0", options.ProviderOptions);
@@ -28,9 +27,6 @@ namespace BlazorWasmContactDb.Client
             builder.Services.AddScoped(typeof(AccountClaimsPrincipalFactory<RemoteUserAccount>),
             typeof(CustomAccountFactory));
             await builder.Build().RunAsync();
-
-            
-
         }
     }
 }
