@@ -62,8 +62,8 @@ else
 }
 
 @code {
-    private List<ContactDisplay> contacts;
-    private List<ContactDisplay> filteredContacts;
+    private List<ContactDisplay> contacts = new();
+    private List<ContactDisplay> filteredContacts = new();
 
     private string searchFirstName = string.Empty;
     private string searchLastName = string.Empty;
