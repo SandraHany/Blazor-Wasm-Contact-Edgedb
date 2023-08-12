@@ -58,8 +58,8 @@ public class ContactController : ControllerBase
         return Ok(contact);
     }
 
-    // PUT: api/contact/{id}
-    [HttpPut("{id}")]
+    // PUT: api/contact/update-contact
+    [HttpPut("update-contact")]
     public async Task<IActionResult> UpdateContact()
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
@@ -92,7 +92,7 @@ public class ContactController : ControllerBase
             { "role", updatedContact.Role },
             { "title", updatedContact.Title },
             { "description", updatedContact.Description },
-            { "date_of_birth", updatedContact.DateofBirth },
+            { "date_of_birth", updatedContact.DateofBirth.ToString("MM dd yyyy") },
             { "is_married", updatedContact.IsMarried }
         };
         try
@@ -100,10 +100,22 @@ public class ContactController : ControllerBase
             await client.ExecuteAsync(query, parameters);
             return Ok(updatedContact);
         }
+        catch (EdgeDB.EdgeDBErrorException ex)
+        {
+            if (ex.Details.Contains("constraint"))
+            {
+                return StatusCode(400, "The update operation violated a constraint: " + ex.Details);
+            }
+            else
+            {
+                return StatusCode(500, "An error occurred while updating the contact: " + ex.Message);
+            }
+        }
         catch (Exception ex)
         {
             return StatusCode(500, "An error occurred while updating the contact: " + ex.Message);
         }
+
     }
 
     [HttpGet("get-contact")]

@@ -124,7 +124,7 @@ else
 
     private async Task UpdateContact()
     {
-        var url = $"api/contact/{id}";
+        var url = $"api/contact/update-contact";
         var response = await Http.PutAsJsonAsync(url, contact);
         if (response.IsSuccessStatusCode)
         {
