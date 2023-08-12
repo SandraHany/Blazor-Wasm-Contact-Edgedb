@@ -52,7 +52,7 @@ else
                     <td>@contact.IsMarried</td>
                     <AuthorizeView Roles="Admin">
                         <td>
-                            <a href="edit-contact/@contact.Id">Edit</a>
+                            <a href="edit-contact/@contact.Id.ToString()">Edit</a>
                         </td>
                     </AuthorizeView>
                 </tr>

@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
-using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+﻿using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication.Internal;
 using System.Security.Claims;
 using System.Text.Json;
-
-namespace BlazorWasmContactDb.Client;
 
 public class CustomAccountFactory : AccountClaimsPrincipalFactory<RemoteUserAccount>
 {
@@ -15,13 +13,6 @@ public class CustomAccountFactory : AccountClaimsPrincipalFactory<RemoteUserAcco
       RemoteUserAccount account,
       RemoteAuthenticationUserOptions options)
     {
-        var principal = await base.CreateUserAsync(account, options);
-
-        // Log or inspect the claims to check for the role claim
-        foreach (var claim in principal.Claims)
-        {
-            Console.WriteLine($"{claim.Type}: {claim.Value}");
-        }
         // Step 1: create the user account
         var userAccount = await base.CreateUserAsync(account, options);
         var userIdentity = (ClaimsIdentity)userAccount.Identity;

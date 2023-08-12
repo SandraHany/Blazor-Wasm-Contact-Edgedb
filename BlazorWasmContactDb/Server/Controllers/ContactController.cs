@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity;
 namespace BlazorWasmContactDb.Server.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class ContactController : ControllerBase
 {
     EdgeDBClient client = new EdgeDBClient();
@@ -64,8 +64,6 @@ public class ContactController : ControllerBase
     {
         var requestBody = await new StreamReader(Request.Body).ReadToEndAsync();
         var updatedContact = Newtonsoft.Json.JsonConvert.DeserializeObject<ContactInput>(requestBody);
-        var passwordHasher = new PasswordHasher<string>();
-        updatedContact.Password = passwordHasher.HashPassword(null, updatedContact.Password);
         var query = $@"
             UPDATE Contact 
                 FILTER .id = <uuid>$id
@@ -90,6 +88,7 @@ public class ContactController : ControllerBase
             { "last_name", updatedContact.LastName },
             { "email", updatedContact.Email },
             { "username", updatedContact.Username },
+            { "password", updatedContact.Password },
             { "role", updatedContact.Role },
             { "title", updatedContact.Title },
             { "description", updatedContact.Description },
@@ -108,8 +107,12 @@ public class ContactController : ControllerBase
     }
 
     [HttpGet("get-contact")]
-    public async Task<IActionResult> GetContact([FromQuery] Guid id)
+    public async Task<IActionResult> GetContact([FromQuery] string id)
     {
+        if (!Guid.TryParse(id, out Guid contactId))
+        {
+            return BadRequest("Invalid contact ID format.");
+        }
         var query = $@"SELECT Contact {{
             Id :=.id,
             FirstName := .first_name,
@@ -119,12 +122,13 @@ public class ContactController : ControllerBase
             Role := .role,
             Title := .title,
             Description := .description,
+            Password := .password,
             DateofBirth :=  std::to_str(.date_of_birth, 'MM dd yyyy'), 
             IsMarried := .is_married
             }} FILTER .id = <uuid>$id;";
         var parameters = new Dictionary<string, object>
         {
-            { "id", id }
+            { "id", contactId }
         };
         var result = await client.QueryAsync<ContactInput>(query, parameters);
         if (result == null)
